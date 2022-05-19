@@ -91,59 +91,69 @@ fun main() {
     WallService.add(post1)
     WallService.add(post2)
     WallService.update(post2)
-    WallService.update(Post(id = 0,
-        ownerId = 30,
-        fromId = 32,
-        createdBy = 43,
-        date = 20220504,
-        text = "Всем привет",
-        replyOwnerId = 51,
-        replyPostId = 61,
-        friendsOnly = true,
-        comments = comment,
-        copyright = copyright,
-        reposts = repost,
-        views = view,
-        postType = "post",
-        signerId = 11,
-        likes = 20,
-        canPin = true,
-        markedAsAds = false,
-        isPinned = true,
-        canDelete = false,
-        canEdit = true,
-        donut = 1,
-        isFavorite = true,
-        postponedId = 55))
+    WallService.update(
+        Post(
+            id = 0,
+            ownerId = 30,
+            fromId = 32,
+            createdBy = 43,
+            date = 20220504,
+            text = "Всем привет",
+            replyOwnerId = 51,
+            replyPostId = 61,
+            friendsOnly = true,
+            comments = comment,
+            copyright = copyright,
+            reposts = repost,
+            views = view,
+            postType = "post",
+            signerId = 11,
+            likes = 20,
+            canPin = true,
+            markedAsAds = false,
+            isPinned = true,
+            canDelete = false,
+            canEdit = true,
+            donut = 1,
+            isFavorite = true,
+            postponedId = 55
+        )
+    )
 
     for (post in WallService.posts) {
         println(post)
     }
 
-    println(WallService.update(Post(id = 0,
-        ownerId = 40,
-        fromId = 32,
-        createdBy = 43,
-        date = 20220506,
-        text = "Всем привет",
-        replyOwnerId = 51,
-        replyPostId = 61,
-        friendsOnly = true,
-        comments = comment,
-        copyright = copyright,
-        reposts = repost,
-        views = view,
-        postType = "post",
-        signerId = 11,
-        likes = 20,
-        canPin = true,
-        markedAsAds = false,
-        isPinned = true,
-        canDelete = false,
-        canEdit = true,
-        donut = 1,
-        isFavorite = true,
-        postponedId = 55)))
+    println(
+        WallService.update(
+            Post(
+                id = 0,
+                ownerId = 40,
+                fromId = 32,
+                createdBy = 43,
+                date = 20220506,
+                text = "Всем привет",
+                replyOwnerId = 51,
+                replyPostId = 61,
+                friendsOnly = true,
+                comments = comment,
+                copyright = copyright,
+                reposts = repost,
+                views = view,
+                postType = "post",
+                signerId = 11,
+                likes = 20,
+                canPin = true,
+                markedAsAds = false,
+                isPinned = true,
+                canDelete = false,
+                canEdit = true,
+                donut = 1,
+                isFavorite = true,
+                postponedId = 55
+            )
+        )
+    )
 
     for (post in WallService.posts) {
         println(post)
@@ -220,21 +230,12 @@ data class Views(
     val count: Int,
 )
 
-interface Attachments {
+abstract class Attachments(
     val type: String
-}
-
-
-class Audio(override val type: String = "Аудио") : Attachments
-class Video(override val type: String = "Видео") : Attachments
-class Photo(override val type: String = "Фото") : Attachments
-class Doc(override val type: String = "Документ") : Attachments
-class Graffiti(override val type: String = "Граффити") :Attachments
-
+)
 
 
 data class AudioAttachment(
-    val audio: Audio,
     val id: Int?,
     val ownerId: Int?,
     val artist: String,
@@ -243,34 +244,31 @@ data class AudioAttachment(
     val url: String,
     val albumId: Int?,
     val date: Int?
-)
+) : Attachments("audio")
 
 
 data class VideoAttachment(
-    val video: Video,
     val id: Int,
     val albumId: Int,
     val ownerId: Int?,
-    val type: String,
     val description: String,
     val duration: Int,
     val date: Int?,
     val views: Int,
-)
+) : Attachments("video")
 
 data class PhotoAttachment(
-    val photo: Photo,
     val id: Int,
     val albumId: Int
-)
+) : Attachments("photo")
 
 data class DocAttachment(
-    val doc: Doc,
     val id: Int,
-)
+    val ownerId: Int?
+) : Attachments("document")
 
 data class GraffitiAttachment(
-    val graffiti: Graffiti,
-    val id: Int
-)
+    val id: Int,
+    val ownerId: Int?
+) : Attachments("graffiti")
 
