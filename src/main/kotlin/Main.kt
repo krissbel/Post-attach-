@@ -1,7 +1,9 @@
 import java.lang.RuntimeException
+import java.util.*
 
 var UNIQUE_ID: Int = 1
 val id = 0
+val postId = 0
 
 val comment = Comments(1, text = "Hi")
 val copyright = Copyright(1, "www.wiki.ru", "Википедия", "сайт")
@@ -154,7 +156,7 @@ fun main() {
     for (post in WallService.posts) {
         println(post)
     }
-    val comment1 = Comments(1, "Круто")
+    val comment1 = Comments(2, "Круто")
     WallService.createComment(comment1)
     for (comment in WallService.comments) {
         println(comment)
@@ -213,9 +215,10 @@ object WallService {
         for ((index, item) in posts.withIndex()) {
             if (comment.postId == item.id) {
                 comments += comment.copy()
+                return
             }
         }
-
+        throw PostNotFoundException("not found PostId")
     }
 }
 
