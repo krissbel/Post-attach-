@@ -1,8 +1,9 @@
-import java.time.Duration
+import java.lang.RuntimeException
 
 var UNIQUE_ID: Int = 1
 val id = 0
-val comment = Comments(1, canPost = true, groupsCanPost = true, canClose = false, canOpen = false)
+
+val comment = Comments(1, text = "Hi")
 val copyright = Copyright(1, "www.wiki.ru", "Википедия", "сайт")
 val repost = Reposts(2, true)
 val view = Views(1)
@@ -19,7 +20,6 @@ fun main() {
         replyOwnerId = 5,
         replyPostId = 6,
         friendsOnly = true,
-        comments = comment,
         copyright = copyright,
         reposts = repost,
         views = view,
@@ -45,7 +45,6 @@ fun main() {
         replyOwnerId = 51,
         replyPostId = 61,
         friendsOnly = true,
-        comments = comment,
         copyright = copyright,
         reposts = repost,
         views = view,
@@ -71,7 +70,6 @@ fun main() {
         replyOwnerId = 51,
         replyPostId = 61,
         friendsOnly = true,
-        comments = comment,
         copyright = copyright,
         reposts = repost,
         views = view,
@@ -102,7 +100,6 @@ fun main() {
             replyOwnerId = 51,
             replyPostId = 61,
             friendsOnly = true,
-            comments = comment,
             copyright = copyright,
             reposts = repost,
             views = view,
@@ -136,7 +133,6 @@ fun main() {
                 replyOwnerId = 51,
                 replyPostId = 61,
                 friendsOnly = true,
-                comments = comment,
                 copyright = copyright,
                 reposts = repost,
                 views = view,
@@ -158,6 +154,11 @@ fun main() {
     for (post in WallService.posts) {
         println(post)
     }
+    val comment1 = Comments(1, "Круто")
+    WallService.createComment(comment1)
+    for (comment in WallService.comments) {
+        println(comment)
+    }
 }
 
 data class Post(
@@ -170,7 +171,7 @@ data class Post(
     val replyOwnerId: Int,
     val replyPostId: Int,
     val friendsOnly: Boolean,
-    val comments: Comments,
+    val comments: Array<Comments> = emptyArray(),
     val copyright: Copyright,
     val likes: Int,
     val reposts: Reposts?,
@@ -190,10 +191,13 @@ data class Post(
 
 object WallService {
     var posts = emptyArray<Post>()
+    var comments = emptyArray<Comments>()
+
     fun add(post: Post): Post {
         posts += post.copy(id = UNIQUE_ID++)
         return posts.last()
     }
+
 
     fun update(post: Post): Boolean {
         for ((index, item) in posts.withIndex()) {
@@ -204,14 +208,24 @@ object WallService {
         }
         return false
     }
+
+    fun createComment(comment: Comments) {
+        for ((index, item) in posts.withIndex()) {
+            if (comment.postId == item.id) {
+                comments += comment.copy()
+            }
+        }
+
+    }
+}
+
+class PostNotFoundException(message: String) : RuntimeException(message) {
+
 }
 
 data class Comments(
-    val count: Int,
-    val canPost: Boolean,
-    val groupsCanPost: Boolean,
-    val canClose: Boolean,
-    val canOpen: Boolean,
+    val postId: Int,
+    val text: String
 )
 
 data class Copyright(
@@ -230,45 +244,69 @@ data class Views(
     val count: Int,
 )
 
-abstract class Attachments(
+interface Attachments {
     val type: String
-)
+}
 
-
-data class AudioAttachment(
+data class Audio(
     val id: Int?,
     val ownerId: Int?,
-    val artist: String,
-    val title: String,
+    val artist: String?,
+    val title: String?,
     val duration: Int,
     val url: String,
     val albumId: Int?,
     val date: Int?
-) : Attachments("audio")
+)
 
-
-data class VideoAttachment(
+data class Video(
     val id: Int,
     val albumId: Int,
     val ownerId: Int?,
     val description: String,
     val duration: Int,
     val date: Int?,
-    val views: Int,
-) : Attachments("video")
+    val views: Int
+)
 
-data class PhotoAttachment(
+data class Photo(
     val id: Int,
     val albumId: Int
-) : Attachments("photo")
+)
+
+data class Doc(
+    val id: Int,
+    val ownerId: Int?
+)
+
+data class Graffiti(
+    val id: Int,
+    val ownerId: Int?
+)
+
+data class AudioAttachment(
+    override val type: String = "audio",
+) : Attachments
+
+
+data class VideoAttachment(
+    override val type: String = "video",
+    val video: Video
+) : Attachments
+
+data class PhotoAttachment(
+    override val type: String = "photo",
+    val photo: Photo
+) : Attachments
 
 data class DocAttachment(
-    val id: Int,
-    val ownerId: Int?
-) : Attachments("document")
+    override val type: String = "doc",
+    val doc: Doc
+) : Attachments
+
 
 data class GraffitiAttachment(
-    val id: Int,
-    val ownerId: Int?
-) : Attachments("graffiti")
+    override val type: String = "graffiti",
+    val graffiti: Graffiti
+) : Attachments
 
